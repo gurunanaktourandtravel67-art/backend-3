@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+
+MAVEN_VERSION=3.9.9
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WRAPPER_DIR="$DIR/.mvn/wrapper"
+DIST_DIR="$WRAPPER_DIR/dists/apache-maven-$MAVEN_VERSION"
+MVN_CMD="$DIST_DIR/apache-maven-$MAVEN_VERSION/bin/mvn"
+
+if [ ! -f "$MVN_CMD" ]; then
+  echo "Maven not found locally - downloading Apache Maven $MAVEN_VERSION (one-time, ~9 MB)..."
+  mkdir -p "$WRAPPER_DIR/dists"
+  ZIP_PATH="$WRAPPER_DIR/dists/apache-maven-$MAVEN_VERSION-bin.zip"
+  curl -fsSL "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip" -o "$ZIP_PATH"
+  unzip -q "$ZIP_PATH" -d "$DIST_DIR"
+  rm "$ZIP_PATH"
+fi
+
+exec "$MVN_CMD" "$@"
